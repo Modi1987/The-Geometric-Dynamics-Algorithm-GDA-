@@ -8,7 +8,7 @@ function [M]=GetInertiaMatrixGDAHJ(T,Pcii,Icii,mcii)
 
 %% Copyright: Mohammad SAFEEA, 2nd-April-2018
 
-%% version one, accelerated by customed skew matrix multiply
+%% version one, accelerated by a customed skew matrix multiplication
 n=max(size(mcii));
 li=zeros(3,n);pcii=zeros(3,n);pci=zeros(3,n);sigmamk=zeros(n);sigmamkpck=zeros(3,n);
 kj=zeros(3,n);pj=zeros(3,n);
@@ -19,7 +19,7 @@ kjpj=zeros(3,n);
 Iacc=zeros(3,3);
 temp=zeros(3,3);
 for i=n:-1:1
-    % Ei is symmetric so Iacc due to the symmetry of (RIR'), 
+    % Ei is symmetric so do Iacc. This is due to the symmetry of (RIR'), 
     % Following code is not the most effcient, it is proven that (RIR') can be calculated in only (28 muliplications and 21 additions)
     temp=Icii(:,:,i)*T(1:3,1:3,i)';
     for j=1:3
@@ -38,10 +38,10 @@ for i=n:-1:1
     pci(:,i)=T(1:3,4,i)+pcii(:,i);
     kjpj(:,i)=cross1(kj(:,i),pj(:,i));
 end
-%% Other variables nitiation
+%% Other variables intiation
 for i=n-1:-1:1
     li(:,i)=T(1:3,4,i+1)-T(1:3,4,i);
-    sigmamk(i)=sigmamk(i+1)+mcii(i+1);
+    sigmamk(i)=sigmamk(i+1)+mcii(i+1); % can be calculated off-line
     sigmamkpck(:,i)=sigmamkpck(:,i+1)+mcii(i+1)*pci(:,i+1);
 end
 
@@ -63,14 +63,16 @@ for i=n:-1:1
     end
 end
 
-%% calculating the coefficient vector of the invarient moment
+%% Calculating the coefficient vector of the invarient moment
 fi=zeros(3,n);
 gi=zeros(3,n);
 for i=n:-1:1
     fi(:,i)=(Ci(:,:,i)+Ei(:,:,i))'*kj(:,i);
     gi(:,i)=cross1(kj(:,i),Di(:,i));
 end
-%% calculating the inertia tensor
+%% Calculating the inertia tensor,
+% the following is the only nested loop in this script
+% resulting in a minimal O(n2) cost
 M=zeros(n,n);
 for i=1:n
     for j=1:i
