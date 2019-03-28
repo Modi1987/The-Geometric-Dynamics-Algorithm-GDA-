@@ -20,7 +20,8 @@ Iacc=zeros(3,3);
 temp=zeros(3,3);
 for i=n:-1:1
     % Ei is symmetric so do Iacc. This is due to the symmetry of (RIR'), 
-    % Following code is not the most effcient, it is proven that (RIR') can be calculated in only (28 muliplications and 21 additions)
+% Following code for calculating (RIR') is not the most effcient, it is proven that 
+% (RIR') can be calculated in only (28 muliplications and 21 additions)
     temp=Icii(:,:,i)*T(1:3,1:3,i)';
     for j=1:3
         for k=j:3
@@ -28,6 +29,9 @@ for i=n:-1:1
             Iacc(k,j)=Iacc(j,k);
         end
     end
+ % NEVERTHELESS THE PREVIOUS CODE SEGMENT IS OF O(n)
+ % IT DOES NOT HAVE MUCH IMPACT ON EXECUTION TIME FOR
+ % HIGH DOF ROBOTS
     Ei(:,:,i)=Iacc;
 end
 %% variables initiation
@@ -80,6 +84,8 @@ for i=1:n
 kjpj(1,j)*gi(1,i)+kjpj(2,j)*gi(2,i)+kjpj(3,j)*gi(3,i);
         M(j,i)=M(i,j);
     end
+    % THE CODE IN THE NESTED LOOP IS OF O(n2) IT DETERMAINS 
+    % THE EXECUTION TIME FOR HIGH DOF ROBOTS.
 end
 end
 
